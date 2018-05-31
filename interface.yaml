@@ -1,0 +1,4 @@
+name: azure
+summary: Interface for connecting to the Azure integration charm.
+version: 1
+maintainer: Cory Johns <johnsca@gmail.com>
