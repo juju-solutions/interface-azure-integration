@@ -30,16 +30,16 @@ class AzureProvides(Endpoint):
     def handle_requests():
         azure = endpoint_from_flag('endpoint.azure.requests-pending')
         for request in azure.requests:
-            if request.instance_labels:
-                layer.azure.label_instance(
-                    request.instance,
-                    request.zone,
-                    request.instance_labels)
+            if request.instance_tags:
+                layer.azure.tag_instance(
+                    request.vm_name,
+                    request.resource_group,
+                    request.instance_tags)
             if request.requested_load_balancer_management:
                 layer.azure.enable_load_balancer_management(
                     request.charm,
-                    request.instance,
-                    request.zone,
+                    request.vm_name,
+                    request.resource_group,
                 )
             # ...
         azure.mark_completed()
@@ -121,16 +121,17 @@ class IntegrationRequest:
         Whether this request has changed since the last time it was
         marked completed (if ever).
         """
-        if not all([self.charm, self.instance, self.zone, self._requested]):
+        if not all([self.charm, self.vm_id, self.vm_name,
+                    self.resource_group, self._requested]):
             return False
-        return self._completed.get(self.instance) != self._requested
+        return self._completed.get(self.vm_id) != self._requested
 
     def mark_completed(self):
         """
         Mark this request as having been completed.
         """
         completed = self._completed
-        completed[self.instance] = self._requested
+        completed[self.vm_id] = self._requested
         self._to_publish['completed'] = completed  # have to explicitly update
 
     @property

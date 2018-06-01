@@ -19,6 +19,7 @@ The flags that are set by the requires side of this interface are:
 """
 
 
+import json
 import os
 import random
 import string
@@ -71,6 +72,7 @@ class AzureRequires(Endpoint):
     """
     # https://docs.microsoft.com/en-us/azure/virtual-machines/windows/instance-metadata-service
     _metadata_url = 'http://169.254.169.254/metadata/instance?api-version=2017-12-01'  # noqa
+    _metadata_headers = {'Metadata': 'true'}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -121,12 +123,12 @@ class AzureRequires(Endpoint):
             if cached:
                 self._vm_metadata = cached
             else:
-                req = Request(self._instance_url,
+                req = Request(self._metadata_url,
                               headers=self._metadata_headers)
                 with urlopen(req) as fd:
                     metadata = fd.read(READ_BLOCK_SIZE).decode('utf8').strip()
-                    self._vm_metadata = metadata
-                unitdata.kv().set(cache_key, self._instance)
+                    self._vm_metadata = json.loads(metadata)
+                unitdata.kv().set(cache_key, self._vm_metadata)
         return self._vm_metadata
 
     @property
