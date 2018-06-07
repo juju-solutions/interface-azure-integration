@@ -3,10 +3,10 @@ site_name: 'Azure Integration Interface'
 generate:
   - requires.md:
     - requires
-    - requires.AzureRequires+
+    - requires.AzureIntegrationRequires+
   - provides.md:
     - provides
-    - provides.AzureProvides+
+    - provides.AzureIntegrationProvides+
     - provides.IntegrationRequest+
 
 pages:

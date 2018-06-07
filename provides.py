@@ -1,6 +1,6 @@
 """
 This is the provides side of the interface layer, for use only by the Azure
-integration charm itself.
+integrator charm itself.
 
 The flags that are set by the provides side of this interface are:
 
@@ -18,7 +18,7 @@ from charms.reactive import when
 from charms.reactive import toggle_flag, clear_flag
 
 
-class AzureProvides(Endpoint):
+class AzureIntegrationProvides(Endpoint):
     """
     Example usage:
 
