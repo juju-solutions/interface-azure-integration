@@ -2,7 +2,7 @@
 
 
 This is the provides side of the interface layer, for use only by the Azure
-integration charm itself.
+integrator charm itself.
 
 The flags that are set by the provides side of this interface are:
 
@@ -12,10 +12,10 @@ The flags that are set by the provides side of this interface are:
   whatever actions are necessary to satisfy those requests, and then mark
   them as complete.
 
-<h1 id="provides.AzureProvides">AzureProvides</h1>
+<h1 id="provides.AzureIntegrationProvides">AzureIntegrationProvides</h1>
 
 ```python
-AzureProvides(self, endpoint_name, relation_ids=None)
+AzureIntegrationProvides(self, endpoint_name, relation_ids=None)
 ```
 
 Example usage:
@@ -28,45 +28,45 @@ from charms import layer
 def handle_requests():
     azure = endpoint_from_flag('endpoint.azure.requests-pending')
     for request in azure.requests:
-        if request.instance_labels:
-            layer.azure.label_instance(
-                request.instance,
-                request.zone,
-                request.instance_labels)
+        if request.instance_tags:
+            layer.azure.tag_instance(
+                request.vm_name,
+                request.resource_group,
+                request.instance_tags)
         if request.requested_load_balancer_management:
             layer.azure.enable_load_balancer_management(
                 request.charm,
-                request.instance,
-                request.zone,
+                request.vm_name,
+                request.resource_group,
             )
         # ...
     azure.mark_completed()
 ```
 
-<h2 id="provides.AzureProvides.relation_ids">relation_ids</h2>
+<h2 id="provides.AzureIntegrationProvides.relation_ids">relation_ids</h2>
 
 
 A list of the IDs of all established relations.
 
-<h2 id="provides.AzureProvides.requests">requests</h2>
+<h2 id="provides.AzureIntegrationProvides.requests">requests</h2>
 
 
 A list of the new or updated `IntegrationRequests` that
 have been made.
 
-<h2 id="provides.AzureProvides.get_departed_charms">get_departed_charms</h2>
+<h2 id="provides.AzureIntegrationProvides.get_departed_charms">get_departed_charms</h2>
 
 ```python
-AzureProvides.get_departed_charms(self)
+AzureIntegrationProvides.get_departed_charms(self)
 ```
 
 Get a list of all charms that have had all units depart since the
 last time this was called.
 
-<h2 id="provides.AzureProvides.mark_completed">mark_completed</h2>
+<h2 id="provides.AzureIntegrationProvides.mark_completed">mark_completed</h2>
 
 ```python
-AzureProvides.mark_completed(self)
+AzureIntegrationProvides.mark_completed(self)
 ```
 
 Mark all requests as completed and remove the `requests-pending` flag.

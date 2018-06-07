@@ -8,8 +8,10 @@ import pydocmd.__main__
 
 
 with patch('charmhelpers.core.hookenv.metadata') as metadata:
-    metadata.return_value = {'requires': {'azure': {'interface': 'azure'}},
-                             'provides': {'azure': {'interface': 'azure'}}}
+    metadata.return_value = {
+        'requires': {'azure': {'interface': 'azure-integration'}},
+        'provides': {'azure': {'interface': 'azure-integration'}},
+    }
     sys.path.insert(0, '.')
     print(sys.argv)
     if len(sys.argv) == 1:

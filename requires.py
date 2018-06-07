@@ -1,7 +1,7 @@
 """
 This is the requires side of the interface layer, for use in charms that
 wish to request integration with Azure native features.  The integration will
-be provided by the Azure integration charm, which allows the requiring charm
+be provided by the Azure integrator charm, which allows the requiring charm
 to not require cloud credentials itself and not have a lot of Azure specific
 API code.
 
@@ -38,7 +38,7 @@ from charms.reactive import clear_flag, toggle_flag
 READ_BLOCK_SIZE = 2048
 
 
-class AzureRequires(Endpoint):
+class AzureIntegrationRequires(Endpoint):
     """
     Interface to request integration access.
 
