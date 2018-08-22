@@ -134,6 +134,17 @@ class IntegrationRequest:
         completed[self.vm_id] = self._requested
         self._to_publish['completed'] = completed  # have to explicitly update
 
+    def send_additional_metadata(self, resource_group_location,
+                                 vnet_name, vnet_resource_group,
+                                 subnet_name, security_group_name):
+        self._to_publish.update({
+            'resource-group-location': resource_group_location,
+            'vnet-name': vnet_name,
+            'vnet-resource-group': vnet_resource_group,
+            'subnet-name': subnet_name,
+            'security-group-name': security_group_name,
+        })
+
     @property
     def relation_id(self):
         """

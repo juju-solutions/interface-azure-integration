@@ -146,11 +146,60 @@ class AzureIntegrationRequires(Endpoint):
         return self.vm_metadata['compute']['name']
 
     @property
+    def vm_location(self):
+        """
+        The location (region) the instance is running in.
+        """
+        return self.vm_metadata['compute']['location']
+
+    @property
     def resource_group(self):
         """
         The resource group this unit is in.
         """
         return self.vm_metadata['compute']['resourceGroupName']
+
+    @property
+    def resource_group_location(self):
+        """
+        The location (region) the resource group is in.
+        """
+        return self._received['resource-group-location']
+
+    @property
+    def subscription_id(self):
+        """
+        The ID of the Azure Subscription this unit is in.
+        """
+        return self.vm_metadata['compute']['subscriptionId']
+
+    @property
+    def vnet_name(self):
+        """
+        The name of the virtual network the instance is in.
+        """
+        return self._received['vnet-name']
+
+    @property
+    def vnet_resource_group(self):
+        """
+        The name of the virtual network the instance is in.
+        """
+        return self._received['vnet-resource-group']
+
+    @property
+    def subnet_name(self):
+        """
+        The name of the subnet the instance is in.
+        """
+        return self._received['subnet-name']
+
+    @property
+    def security_group_name(self):
+        """
+        The name of the security group attached to the cluster's subnet.
+        """
+        return self._received['security-group-name']
 
     @property
     def is_ready(self):
