@@ -136,13 +136,16 @@ class IntegrationRequest:
 
     def send_additional_metadata(self, resource_group_location,
                                  vnet_name, vnet_resource_group,
-                                 subnet_name, security_group_name):
+                                 subnet_name, security_group_name, config={}):
+        run_config = config
+        if run_config is None:
+            run_config = {}
         self._to_publish.update({
             'resource-group-location': resource_group_location,
-            'vnet-name': vnet_name,
-            'vnet-resource-group': vnet_resource_group,
-            'subnet-name': subnet_name,
-            'security-group-name': security_group_name,
+            'vnet-name': run_config.get('vnetName') if run_config.get('vnetName') else vnet_name,
+            'vnet-resource-group': run_config.get('vnetResourceGroup') if run_config.get('vnetResourceGroup') else vnet_resource_group,
+            'subnet-name': run_config.get('subnetName') if run_config.get('subnetName') else subnet_name,
+            'security-group-name': run_config.get('vnetSecurityGroup') if run_config.get('vnetSecurityGroup') else security_group_name,
         })
 
     @property
