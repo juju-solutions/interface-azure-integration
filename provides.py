@@ -224,6 +224,14 @@ class IntegrationRequest:
         return bool(self._unit.received['enable-network-management'])
 
     @property
+    def requested_loadbalancer_management(self):
+        """
+        Flag indicating whether the ability to manage networking was requested.
+        """
+        return bool(self._unit.received['enable-loadbalancer-management'])
+
+
+    @property
     def requested_security_management(self):
         """
         Flag indicating whether security management was requested.

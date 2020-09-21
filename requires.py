@@ -242,6 +242,13 @@ class AzureIntegrationRequires(Endpoint):
         """
         self._request({'enable-network-management': True})
 
+    def enable_loadbalancer_management(self):
+        """
+        Request the ability to manage networking.
+        """
+        self._request({'enable-loadbalancer-management': True})
+
+
     def enable_security_management(self):
         """
         Request the ability to manage security (e.g., firewalls).
@@ -271,3 +278,5 @@ class AzureIntegrationRequires(Endpoint):
         Request the ability to manage object storage.
         """
         self._request({'enable-object-storage-management': True})
+
+
