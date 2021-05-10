@@ -214,6 +214,22 @@ class AzureIntegrationRequires(Endpoint):
     def credentials(self):
         return self._received['credentials']
 
+    @property
+    def managed_identity(self):
+        return self._received['use-managed-identity']
+
+    @property
+    def aad_client_id(self):
+        return self._received['aad-client']
+
+    @property
+    def aad_client_secret(self):
+        return self._received['aad-client-secret']
+    
+    @property
+    def tenant_id(self):
+        return self._received['tenant-id']
+
     def _request(self, keyvals):
         alphabet = string.ascii_letters + string.digits
         nonce = ''.join(random.choice(alphabet) for _ in range(8))

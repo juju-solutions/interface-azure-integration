@@ -136,13 +136,19 @@ class IntegrationRequest:
 
     def send_additional_metadata(self, resource_group_location,
                                  vnet_name, vnet_resource_group,
-                                 subnet_name, security_group_name):
+                                 subnet_name, security_group_name,
+                                 use_managed_identity=False, aad_client=None,
+                                 aad_secret=None, tenant_id=None):
         self._to_publish.update({
             'resource-group-location': resource_group_location,
             'vnet-name': vnet_name,
             'vnet-resource-group': vnet_resource_group,
             'subnet-name': subnet_name,
             'security-group-name': security_group_name,
+            'use-managed-identity': use_managed_identity,
+            'aad-client': aad_client,
+            'aad-client-secret': aad_secret,
+            'tenant-id': tenant_id
         })
 
     @property
