@@ -215,6 +215,10 @@ class AzureIntegrationRequires(Endpoint):
         return self._received['credentials']
 
     @property
+    def security_group_resource_group(self):
+        return self._received['security-group-resource-group']
+
+    @property
     def managed_identity(self):
         return self._received['use-managed-identity']
 
