@@ -211,10 +211,6 @@ class AzureIntegrationRequires(Endpoint):
         return requested and requested == completed
 
     @property
-    def credentials(self):
-        return self._received['credentials']
-
-    @property
     def security_group_resource_group(self):
         return self._received['security-group-resource-group']
 
