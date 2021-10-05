@@ -140,7 +140,7 @@ class AzureIntegrationRequires(Endpoint):
         return self.vm_metadata['compute']['vmId']
 
 
-    @propert
+    @property
     def subscription_id(self):
         """ This units subscription """
         return self.vm_metadata['compute']['subscriptionId']
