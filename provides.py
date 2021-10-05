@@ -182,9 +182,16 @@ class IntegrationRequest:
         return self._unit.received['charm']
 
     @property
+    def subscription_id(self):
+        """
+        the subscription id reported for this request
+        """
+        return self._unit.received['sub-id']
+
+    @property
     def vm_id(self):
         """
-        The instance ID reported for this request.
+        the instance id reported for this request.
         """
         return self._unit.received['vm-id']
 

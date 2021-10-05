@@ -103,6 +103,7 @@ class AzureIntegrationRequires(Endpoint):
         self._to_publish['vm-name'] = self.vm_name
         self._to_publish['res-group'] = self.resource_group
         self._to_publish['model-uuid'] = os.environ['JUJU_MODEL_UUID']
+        self._to_publish['sub-id'] = self.subscription_id
 
     @when('endpoint.{endpoint_name}.changed')
     def check_ready(self):
@@ -137,6 +138,12 @@ class AzureIntegrationRequires(Endpoint):
         This unit's instance ID.
         """
         return self.vm_metadata['compute']['vmId']
+
+
+    @propert
+    def subscription_id(self):
+        """ This units subscription """
+        return self.vm_metadata['compute']['subscriptionId']
 
     @property
     def vm_name(self):
