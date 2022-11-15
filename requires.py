@@ -29,8 +29,9 @@ from charmhelpers.core import hookenv
 from charmhelpers.core import unitdata
 
 from charms.reactive import Endpoint
+from charms.reactive import data_changed
 from charms.reactive import when, when_not
-from charms.reactive import clear_flag, toggle_flag
+from charms.reactive import clear_flag, is_flag_set, set_flag, toggle_flag
 
 
 # block size to read data from Azure metadata service
@@ -96,6 +97,25 @@ class AzureIntegrationRequires(Endpoint):
         """
         return self.relations[0].to_publish
 
+    @property
+    def is_changed(self):
+        """
+        Whether or not the request for this instance has changed.
+        """
+        return data_changed(self.expand_name('all-data'), [
+            self.aad_client_id,
+            self.aad_client_secret,
+            self.managed_identity,
+            self.resource_group,
+            self.resource_group_location,
+            self.security_group_name,
+            self.security_group_resource_group,
+            self.subnet_name,
+            self.tenant_id,
+            self.vnet_name,
+            self.vnet_resource_group
+        ])
+
     @when('endpoint.{endpoint_name}.joined')
     def send_instance_info(self):
         self._to_publish['charm'] = hookenv.charm_name()
@@ -108,7 +128,10 @@ class AzureIntegrationRequires(Endpoint):
     def check_ready(self):
         # My middle name is ready. No, that doesn't sound right.
         # I eat ready for breakfast.
+        was_ready = is_flag_set(self.expand_name('ready'))
         toggle_flag(self.expand_name('ready'), self.is_ready)
+        if self.is_ready and was_ready and self.is_changed:
+            set_flag(self.expand_name('ready.changed'))
         clear_flag(self.expand_name('changed'))
 
     @when_not('endpoint.{endpoint_name}.joined')
@@ -225,7 +248,7 @@ class AzureIntegrationRequires(Endpoint):
     @property
     def aad_client_secret(self):
         return self._received['aad-client-secret']
-    
+
     @property
     def tenant_id(self):
         return self._received['tenant-id']
@@ -264,7 +287,6 @@ class AzureIntegrationRequires(Endpoint):
         """
         self._request({'enable-loadbalancer-management': True})
 
-
     def enable_security_management(self):
         """
         Request the ability to manage security (e.g., firewalls).
@@ -294,5 +316,3 @@ class AzureIntegrationRequires(Endpoint):
         Request the ability to manage object storage.
         """
         self._request({'enable-object-storage-management': True})
-
-
