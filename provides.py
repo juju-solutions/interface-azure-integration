@@ -53,16 +53,26 @@ class AzureIntegrationProvides(Endpoint):
         clear_flag(self.expand_name('changed'))
 
     @property
+    def all_requests(self):
+        """
+        A list of all requests that have been made.
+        """
+        if not hasattr(self, '_all_requests'):
+            self._all_requests = [
+                IntegrationRequest(unit)
+                for unit in self.all_joined_units
+            ]
+        return self._all_requests
+
+    @property
     def requests(self):
         """
         A list of the new or updated #IntegrationRequests that
         have been made.
         """
         if not hasattr(self, '_requests'):
-            all_requests = [IntegrationRequest(unit)
-                            for unit in self.all_joined_units]
             is_changed = attrgetter('is_changed')
-            self._requests = list(filter(is_changed, all_requests))
+            self._requests = list(filter(is_changed, self.all_requests))
         return self._requests
 
     @property
