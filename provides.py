@@ -46,21 +46,19 @@ class AzureIntegrationProvides(Endpoint):
     ```
     """
 
-    @when('endpoint.{endpoint_name}.changed')
+    @when("endpoint.{endpoint_name}.changed")
     def check_requests(self):
-        toggle_flag(self.expand_name('requests-pending'),
-                    len(self.requests) > 0)
-        clear_flag(self.expand_name('changed'))
+        toggle_flag(self.expand_name("requests-pending"), len(self.requests) > 0)
+        clear_flag(self.expand_name("changed"))
 
     @property
     def all_requests(self):
         """
         A list of all requests that have been made.
         """
-        if not hasattr(self, '_all_requests'):
+        if not hasattr(self, "_all_requests"):
             self._all_requests = [
-                IntegrationRequest(unit)
-                for unit in self.all_joined_units
+                IntegrationRequest(unit) for unit in self.all_joined_units
             ]
         return self._all_requests
 
@@ -70,8 +68,8 @@ class AzureIntegrationProvides(Endpoint):
         A list of the new or updated #IntegrationRequests that
         have been made.
         """
-        if not hasattr(self, '_requests'):
-            is_changed = attrgetter('is_changed')
+        if not hasattr(self, "_requests"):
+            is_changed = attrgetter("is_changed")
             self._requests = list(filter(is_changed, self.all_requests))
         return self._requests
 
@@ -87,12 +85,16 @@ class AzureIntegrationProvides(Endpoint):
         Get a list of all charms that have had all units depart since the
         last time this was called.
         """
-        joined_charms = {unit.received['charm']
-                         for unit in self.all_joined_units
-                         if unit.received['charm']}
-        departed_charms = [unit.received['charm']
-                           for unit in self.all_departed_units
-                           if unit.received['charm'] not in joined_charms]
+        joined_charms = {
+            unit.received["charm"]
+            for unit in self.all_joined_units
+            if unit.received["charm"]
+        }
+        departed_charms = [
+            unit.received["charm"]
+            for unit in self.all_departed_units
+            if unit.received["charm"] not in joined_charms
+        ]
         self.all_departed_units.clear()
         return departed_charms
 
@@ -102,7 +104,7 @@ class AzureIntegrationProvides(Endpoint):
         """
         for request in self.requests:
             request.mark_completed()
-        clear_flag(self.expand_name('requests-pending'))
+        clear_flag(self.expand_name("requests-pending"))
         self._requests = []
 
 
@@ -110,6 +112,7 @@ class IntegrationRequest:
     """
     A request for integration from a single remote unit.
     """
+
     def __init__(self, unit):
         self._unit = unit
 
@@ -119,11 +122,11 @@ class IntegrationRequest:
 
     @property
     def _completed(self):
-        return self._to_publish.get('completed', {})
+        return self._to_publish.get("completed", {})
 
     @property
     def _requested(self):
-        return self._unit.received['requested']
+        return self._unit.received["requested"]
 
     @property
     def is_changed(self):
@@ -131,8 +134,9 @@ class IntegrationRequest:
         Whether this request has changed since the last time it was
         marked completed (if ever).
         """
-        if not all([self.charm, self.vm_id, self.vm_name,
-                    self.resource_group, self._requested]):
+        if not all(
+            [self.charm, self.vm_id, self.vm_name, self.resource_group, self._requested]
+        ):
             return False
         return self._completed.get(self.vm_id) != self._requested
 
@@ -142,26 +146,35 @@ class IntegrationRequest:
         """
         completed = self._completed
         completed[self.vm_id] = self._requested
-        self._to_publish['completed'] = completed  # have to explicitly update
+        self._to_publish["completed"] = completed  # have to explicitly update
 
-    def send_additional_metadata(self, resource_group_location,
-                                 vnet_name, vnet_resource_group,
-                                 subnet_name, security_group_name,
-                                 security_group_resource_group,
-                                 use_managed_identity=True, aad_client=None,
-                                 aad_secret=None, tenant_id=None):
-        self._to_publish.update({
-            'resource-group-location': resource_group_location,
-            'vnet-name': vnet_name,
-            'vnet-resource-group': vnet_resource_group,
-            'subnet-name': subnet_name,
-            'security-group-name': security_group_name,
-            'security-group-resource-group': security_group_resource_group,
-            'use-managed-identity': use_managed_identity,
-            'aad-client': aad_client,
-            'aad-client-secret': aad_secret,
-            'tenant-id': tenant_id
-        })
+    def send_additional_metadata(
+        self,
+        resource_group_location,
+        vnet_name,
+        vnet_resource_group,
+        subnet_name,
+        security_group_name,
+        security_group_resource_group,
+        use_managed_identity=True,
+        aad_client=None,
+        aad_secret=None,
+        tenant_id=None,
+    ):
+        self._to_publish.update(
+            {
+                "resource-group-location": resource_group_location,
+                "vnet-name": vnet_name,
+                "vnet-resource-group": vnet_resource_group,
+                "subnet-name": subnet_name,
+                "security-group-name": security_group_name,
+                "security-group-resource-group": security_group_resource_group,
+                "use-managed-identity": use_managed_identity,
+                "aad-client": aad_client,
+                "aad-client-secret": aad_secret,
+                "tenant-id": tenant_id,
+            }
+        )
 
     @property
     def relation_id(self):
@@ -189,35 +202,35 @@ class IntegrationRequest:
         """
         The charm name reported for this request.
         """
-        return self._unit.received['charm']
+        return self._unit.received["charm"]
 
     @property
     def vm_id(self):
         """
         The instance ID reported for this request.
         """
-        return self._unit.received['vm-id']
+        return self._unit.received["vm-id"]
 
     @property
     def vm_name(self):
         """
         The instance name reported for this request.
         """
-        return self._unit.received['vm-name']
+        return self._unit.received["vm-name"]
 
     @property
     def resource_group(self):
         """
         The resource group reported for this request.
         """
-        return self._unit.received['res-group']
+        return self._unit.received["res-group"]
 
     @property
     def model_uuid(self):
         """
         The UUID of the model containing the application making this request.
         """
-        return self._unit.received['model-uuid']
+        return self._unit.received["model-uuid"]
 
     @property
     def instance_tags(self):
@@ -225,61 +238,60 @@ class IntegrationRequest:
         Mapping of tag names to values to apply to this instance.
         """
         # uses dict() here to make a copy, just to be safe
-        return dict(self._unit.received.get('instance-tags', {}))
+        return dict(self._unit.received.get("instance-tags", {}))
 
     @property
     def requested_instance_inspection(self):
         """
         Flag indicating whether the ability to inspect instances was requested.
         """
-        return bool(self._unit.received['enable-instance-inspection'])
+        return bool(self._unit.received["enable-instance-inspection"])
 
     @property
     def requested_network_management(self):
         """
         Flag indicating whether the ability to manage networking was requested.
         """
-        return bool(self._unit.received['enable-network-management'])
+        return bool(self._unit.received["enable-network-management"])
 
     @property
     def requested_loadbalancer_management(self):
         """
         Flag indicating whether the ability to manage networking was requested.
         """
-        return bool(self._unit.received['enable-loadbalancer-management'])
-
+        return bool(self._unit.received["enable-loadbalancer-management"])
 
     @property
     def requested_security_management(self):
         """
         Flag indicating whether security management was requested.
         """
-        return bool(self._unit.received['enable-security-management'])
+        return bool(self._unit.received["enable-security-management"])
 
     @property
     def requested_block_storage_management(self):
         """
         Flag indicating whether block storage management was requested.
         """
-        return bool(self._unit.received['enable-block-storage-management'])
+        return bool(self._unit.received["enable-block-storage-management"])
 
     @property
     def requested_dns_management(self):
         """
         Flag indicating whether DNS management was requested.
         """
-        return bool(self._unit.received['enable-dns-management'])
+        return bool(self._unit.received["enable-dns-management"])
 
     @property
     def requested_object_storage_access(self):
         """
         Flag indicating whether object storage access was requested.
         """
-        return bool(self._unit.received['enable-object-storage-access'])
+        return bool(self._unit.received["enable-object-storage-access"])
 
     @property
     def requested_object_storage_management(self):
         """
         Flag indicating whether object storage management was requested.
         """
-        return bool(self._unit.received['enable-object-storage-management'])
+        return bool(self._unit.received["enable-object-storage-management"])

@@ -1,0 +1,23 @@
+egress-subnets: 172.31.39.57/32
+enable-acm-readonly: "true"
+enable-acm-fullaccess: "true"
+enable-autoscaling-readonly: "true"
+enable-block-storage-management: "true"
+enable-dns: "true"
+enable-instance-inspection: "true"
+enable-instance-modification: "true"
+enable-loadbalancer-management: "true"
+enable-network-management: "true"
+enable-security-management: "true"
+enable-region-readonly: "true"
+ingress-address: 172.31.39.57
+instance-tags: '{"tag1": "val1", "tag2": "val2"}'
+enable-object-storage-management: "true"
+enable-object-storage-access: "true"
+private-address: 172.31.39.57
+zone: '"us-east-1"'
+requested: "true"
+charm: "test"
+instance: '"i-abcdefghijklmnopq"'
+zone: '"us-east1"'
+model-uuid: '"cf67b90e-7201-4f23-8c0a-e1f453f1dc2e"'

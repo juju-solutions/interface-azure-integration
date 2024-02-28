@@ -1,0 +1,11 @@
+completed: '{"i-abcdefghijklmnopq": "dbac1ab58274947966dbf98cd1a86e36622b3fc3a5278f8cc06fa7bb1c48d69c"}'
+resource-group-location: rgl
+vnet-name: vn
+vnet-resource-group: vrg
+subnet-name: sn
+security-group-name: sgn
+security-group-resource-group: sgrg
+use-managed-identity: umi
+aad-client: aci
+aad-client-secret: acs
+tenant-id: ti
