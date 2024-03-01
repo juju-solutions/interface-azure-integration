@@ -119,6 +119,13 @@ class AzureIntegrationRequires(ops.Object):
             "subscription-id": self.subscription_id,
             "model-uuid": os.environ["JUJU_MODEL_UUID"],
         }
+        log.info(
+            "%s is vm_id=%s (vm_name=%s) in vm-location=%s",
+            self.charm.unit.name,
+            self.vm_id,
+            self.vm_name,
+            self.vm_location,
+        )
         self._request(info)
 
     @cached_property
@@ -223,7 +230,16 @@ class AzureIntegrationRequires(ops.Object):
         """
         requested = self._to_publish.get("requested")
         completed = json.loads(self._received.get("completed", "{}")).get(self.vm_id)
-        return bool(requested and requested == completed)
+        ready = bool(requested and requested == completed)
+        if not requested:
+            log.warning("Local end has yet to request integration")
+        if not completed:
+            log.warning("Remote end has yet to calculate a response")
+        elif not ready:
+            log.warning(
+                "Waiting for completed=%s to be requested=%s", completed, requested
+            )
+        return ready
 
     def evaluate_relation(self, event) -> Optional[str]:
         """Determine if relation is ready."""
@@ -239,9 +255,14 @@ class AzureIntegrationRequires(ops.Object):
 
     @property
     def _expected_hash(self):
-        return sha256(
-            json.dumps(dict(self._to_publish), sort_keys=True).encode("utf8")
-        ).hexdigest()
+        def from_json(s: str):
+            try:
+                return json.loads(s)
+            except json.decoder.JSONDecodeError:
+                return s
+
+        to_sha = {key: from_json(val) for key, val in self._to_publish.items()}
+        return sha256(json.dumps(to_sha, sort_keys=True).encode()).hexdigest()
 
     def _request(self, keyvals):
         kwds = {key: json.dumps(val) for key, val in keyvals.items()}
