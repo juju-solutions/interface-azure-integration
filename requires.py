@@ -18,7 +18,6 @@ The flags that are set by the requires side of this interface are:
   are requested.  It should not be removed by the charm.
 """
 
-
 import json
 import os
 import random
@@ -71,9 +70,12 @@ class AzureIntegrationRequires(Endpoint):
         update_config_enable_azure()
     ```
     """
+
     # https://docs.microsoft.com/en-us/azure/virtual-machines/windows/instance-metadata-service
-    _metadata_url = 'http://169.254.169.254/metadata/instance?api-version=2017-12-01'  # noqa
-    _metadata_headers = {'Metadata': 'true'}
+    _metadata_url = (
+        "http://169.254.169.254/metadata/instance?api-version=2017-12-01"  # noqa
+    )
+    _metadata_headers = {"Metadata": "true"}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -102,54 +104,56 @@ class AzureIntegrationRequires(Endpoint):
         """
         Whether or not the request for this instance has changed.
         """
-        return data_changed(self.expand_name('all-data'), [
-            self.aad_client_id,
-            self.aad_client_secret,
-            self.managed_identity,
-            self.resource_group,
-            self.resource_group_location,
-            self.security_group_name,
-            self.security_group_resource_group,
-            self.subnet_name,
-            self.tenant_id,
-            self.vnet_name,
-            self.vnet_resource_group
-        ])
+        return data_changed(
+            self.expand_name("all-data"),
+            [
+                self.aad_client_id,
+                self.aad_client_secret,
+                self.managed_identity,
+                self.resource_group,
+                self.resource_group_location,
+                self.security_group_name,
+                self.security_group_resource_group,
+                self.subnet_name,
+                self.tenant_id,
+                self.vnet_name,
+                self.vnet_resource_group,
+            ],
+        )
 
-    @when('endpoint.{endpoint_name}.joined')
+    @when("endpoint.{endpoint_name}.joined")
     def send_instance_info(self):
-        self._to_publish['charm'] = hookenv.charm_name()
-        self._to_publish['vm-id'] = self.vm_id
-        self._to_publish['vm-name'] = self.vm_name
-        self._to_publish['res-group'] = self.resource_group
-        self._to_publish['model-uuid'] = os.environ['JUJU_MODEL_UUID']
+        self._to_publish["charm"] = hookenv.charm_name()
+        self._to_publish["vm-id"] = self.vm_id
+        self._to_publish["vm-name"] = self.vm_name
+        self._to_publish["res-group"] = self.resource_group
+        self._to_publish["model-uuid"] = os.environ["JUJU_MODEL_UUID"]
 
-    @when('endpoint.{endpoint_name}.changed')
+    @when("endpoint.{endpoint_name}.changed")
     def check_ready(self):
         # My middle name is ready. No, that doesn't sound right.
         # I eat ready for breakfast.
-        was_ready = is_flag_set(self.expand_name('ready'))
-        toggle_flag(self.expand_name('ready'), self.is_ready)
+        was_ready = is_flag_set(self.expand_name("ready"))
+        toggle_flag(self.expand_name("ready"), self.is_ready)
         if self.is_ready and was_ready and self.is_changed:
-            set_flag(self.expand_name('ready.changed'))
-        clear_flag(self.expand_name('changed'))
+            set_flag(self.expand_name("ready.changed"))
+        clear_flag(self.expand_name("changed"))
 
-    @when_not('endpoint.{endpoint_name}.joined')
+    @when_not("endpoint.{endpoint_name}.joined")
     def remove_ready(self):
-        clear_flag(self.expand_name('ready'))
+        clear_flag(self.expand_name("ready"))
 
     @property
     def vm_metadata(self):
         if self._vm_metadata is None:
-            cache_key = self.expand_name('vm-metadata')
+            cache_key = self.expand_name("vm-metadata")
             cached = unitdata.kv().get(cache_key)
             if cached:
                 self._vm_metadata = cached
             else:
-                req = Request(self._metadata_url,
-                              headers=self._metadata_headers)
+                req = Request(self._metadata_url, headers=self._metadata_headers)
                 with urlopen(req) as fd:
-                    metadata = fd.read(READ_BLOCK_SIZE).decode('utf8').strip()
+                    metadata = fd.read(READ_BLOCK_SIZE).decode("utf8").strip()
                     self._vm_metadata = json.loads(metadata)
                 unitdata.kv().set(cache_key, self._vm_metadata)
         return self._vm_metadata
@@ -159,106 +163,106 @@ class AzureIntegrationRequires(Endpoint):
         """
         This unit's instance ID.
         """
-        return self.vm_metadata['compute']['vmId']
+        return self.vm_metadata["compute"]["vmId"]
 
     @property
     def vm_name(self):
         """
         This unit's instance name.
         """
-        return self.vm_metadata['compute']['name']
+        return self.vm_metadata["compute"]["name"]
 
     @property
     def vm_location(self):
         """
         The location (region) the instance is running in.
         """
-        return self.vm_metadata['compute']['location']
+        return self.vm_metadata["compute"]["location"]
 
     @property
     def resource_group(self):
         """
         The resource group this unit is in.
         """
-        return self.vm_metadata['compute']['resourceGroupName']
+        return self.vm_metadata["compute"]["resourceGroupName"]
 
     @property
     def resource_group_location(self):
         """
         The location (region) the resource group is in.
         """
-        return self._received['resource-group-location']
+        return self._received["resource-group-location"]
 
     @property
     def subscription_id(self):
         """
         The ID of the Azure Subscription this unit is in.
         """
-        return self.vm_metadata['compute']['subscriptionId']
+        return self.vm_metadata["compute"]["subscriptionId"]
 
     @property
     def vnet_name(self):
         """
         The name of the virtual network the instance is in.
         """
-        return self._received['vnet-name']
+        return self._received["vnet-name"]
 
     @property
     def vnet_resource_group(self):
         """
         The name of the virtual network the instance is in.
         """
-        return self._received['vnet-resource-group']
+        return self._received["vnet-resource-group"]
 
     @property
     def subnet_name(self):
         """
         The name of the subnet the instance is in.
         """
-        return self._received['subnet-name']
+        return self._received["subnet-name"]
 
     @property
     def security_group_name(self):
         """
         The name of the security group attached to the cluster's subnet.
         """
-        return self._received['security-group-name']
+        return self._received["security-group-name"]
 
     @property
     def is_ready(self):
         """
         Whether or not the request for this instance has been completed.
         """
-        requested = self._to_publish['requested']
-        completed = self._received.get('completed', {}).get(self.vm_id)
+        requested = self._to_publish["requested"]
+        completed = self._received.get("completed", {}).get(self.vm_id)
         return requested and requested == completed
 
     @property
     def security_group_resource_group(self):
-        return self._received['security-group-resource-group']
+        return self._received["security-group-resource-group"]
 
     @property
     def managed_identity(self):
-        return self._received['use-managed-identity']
+        return self._received["use-managed-identity"]
 
     @property
     def aad_client_id(self):
-        return self._received['aad-client']
+        return self._received["aad-client"]
 
     @property
     def aad_client_secret(self):
-        return self._received['aad-client-secret']
+        return self._received["aad-client-secret"]
 
     @property
     def tenant_id(self):
-        return self._received['tenant-id']
+        return self._received["tenant-id"]
 
     def _request(self, keyvals):
         alphabet = string.ascii_letters + string.digits
-        nonce = ''.join(random.choice(alphabet) for _ in range(8))
+        nonce = "".join(random.choice(alphabet) for _ in range(8))
         self._to_publish.update(keyvals)
-        self._to_publish['requested'] = nonce
-        clear_flag(self.expand_name('ready'))
+        self._to_publish["requested"] = nonce
+        clear_flag(self.expand_name("ready"))
 
     def tag_instance(self, tags):
         """
@@ -267,52 +271,52 @@ class AzureIntegrationRequires(Endpoint):
         # Parameters
         `tags` (dict): Mapping of tags names to values.
         """
-        self._request({'instance-tags': dict(tags)})
+        self._request({"instance-tags": dict(tags)})
 
     def enable_instance_inspection(self):
         """
         Request the ability to inspect instances.
         """
-        self._request({'enable-instance-inspection': True})
+        self._request({"enable-instance-inspection": True})
 
     def enable_network_management(self):
         """
         Request the ability to manage networking.
         """
-        self._request({'enable-network-management': True})
+        self._request({"enable-network-management": True})
 
     def enable_loadbalancer_management(self):
         """
         Request the ability to manage networking.
         """
-        self._request({'enable-loadbalancer-management': True})
+        self._request({"enable-loadbalancer-management": True})
 
     def enable_security_management(self):
         """
         Request the ability to manage security (e.g., firewalls).
         """
-        self._request({'enable-security-management': True})
+        self._request({"enable-security-management": True})
 
     def enable_block_storage_management(self):
         """
         Request the ability to manage block storage.
         """
-        self._request({'enable-block-storage-management': True})
+        self._request({"enable-block-storage-management": True})
 
     def enable_dns_management(self):
         """
         Request the ability to manage DNS.
         """
-        self._request({'enable-dns': True})
+        self._request({"enable-dns": True})
 
     def enable_object_storage_access(self):
         """
         Request the ability to access object storage.
         """
-        self._request({'enable-object-storage-access': True})
+        self._request({"enable-object-storage-access": True})
 
     def enable_object_storage_management(self):
         """
         Request the ability to manage object storage.
         """
-        self._request({'enable-object-storage-management': True})
+        self._request({"enable-object-storage-management": True})
